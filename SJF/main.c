@@ -1,68 +1,69 @@
 #include <stdio.h>
 
-int main()
-{
-    // Matriz para armazenar ID do Processo, Tempo de Execução,
-    // Tempo Médio de Espera e Tempo Médio de Retorno.
-    int A[100][4];
-    int i, j, n, total = 0, indice, temp;
-    float tempo_medio_espera, tempo_medio_retorno;
+int main() {
+    int n, i, j;
+    int at[20], bt[20], pid[20], wt[20], tat[20], completed[20];
+    int exec_order[20];
+    int current_time = 0, completed_count = 0;
+    float avg_wt = 0, avg_tat = 0;
 
     printf("Digite o número de processos: ");
     scanf("%d", &n);
 
-    printf("Digite o Tempo de Execução (Burst Time):\n");
-
-    // Entrada do usuário para o Tempo de Execução e atribuição do ID do processo.
-    for (i = 0; i < n; i++) {
-        printf("P%d: ", i + 1);
-        scanf("%d", &A[i][1]);
-        A[i][0] = i + 1; // ID do processo
+    for(i = 0; i < n; i++) {
+        printf("Processo %d\n", i + 1);
+        printf("Tempo de chegada: ");
+        scanf("%d", &at[i]);
+        printf("Tempo de execução (burst): ");
+        scanf("%d", &bt[i]);
+        pid[i] = i + 1;
+        completed[i] = 0;
     }
 
-    // Ordenando os processos de acordo com o Tempo de Execução (SJF não-preemptivo).
-    for (i = 0; i < n; i++) {
-        indice = i;
-        for (j = i + 1; j < n; j++)
-            if (A[j][1] < A[indice][1])
-                indice = j;
+    while(completed_count < n) {
+        int idx = -1;
+        int min_bt = 1e9;
 
-        temp = A[i][1];
-        A[i][1] = A[indice][1];
-        A[indice][1] = temp;
+        for(i = 0; i < n; i++) {
+            if(at[i] <= current_time && completed[i] == 0) {
+                if(bt[i] < min_bt) {
+                    min_bt = bt[i];
+                    idx = i;
+                } else if(bt[i] == min_bt) {
+                    if(at[i] < at[idx])
+                        idx = i;
+                }
+            }
+        }
 
-        temp = A[i][0];
-        A[i][0] = A[indice][0];
-        A[indice][0] = temp;
+        if(idx != -1) {
+            wt[idx] = current_time - at[idx];
+            current_time += bt[idx];
+            tat[idx] = wt[idx] + bt[idx];
+            completed[idx] = 1;
+            exec_order[completed_count] = idx; // salva ordem de execução
+            completed_count++;
+        } else {
+            current_time++;
+        }
     }
 
-    A[0][2] = 0; // Tempo de espera do primeiro processo é zero
-
-    // Cálculo dos Tempos de Espera
-    for (i = 1; i < n; i++) {
-        A[i][2] = 0;
-        for (j = 0; j < i; j++)
-            A[i][2] += A[j][1]; // Soma dos tempos de execução anteriores
-        total += A[i][2];
+    printf("\nOrdem de execução:\n");
+    for(i = 0; i < n; i++) {
+        printf("P%d ", pid[exec_order[i]]);
     }
 
-    tempo_medio_espera = (float)total / n;
-    total = 0;
-
-    printf("P     TE     TEsp    TRet\n");
-
-    // Cálculo do Tempo de Retorno e impressão dos dados
-    for (i = 0; i < n; i++) {
-        A[i][3] = A[i][1] + A[i][2]; // TRet = TE + TEsp
-        total += A[i][3];
-        printf("P%d     %d     %d      %d\n", A[i][0],
-               A[i][1], A[i][2], A[i][3]);
+    printf("\n\nPID\tAT\tBT\tWT\tTAT\n");
+    for(i = 0; i < n; i++) {
+        printf("P%d\t%d\t%d\t%d\t%d\n", pid[i], at[i], bt[i], wt[i], tat[i]);
+        avg_wt += wt[i];
+        avg_tat += tat[i];
     }
 
-    tempo_medio_retorno = (float)total / n;
-
-    printf("Tempo Médio de Espera = %f", tempo_medio_espera);
-    printf("\nTempo Médio de Retorno = %f", tempo_medio_retorno);
+    avg_wt /= n;
+    avg_tat /= n;
+    printf("\nTempo médio de espera = %.2f\n", avg_wt);
+    printf("Tempo médio de retorno = %.2f\n", avg_tat);
 
     return 0;
 }

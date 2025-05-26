@@ -20,7 +20,7 @@ int main()
   printf("Digite o Quantum de Tempo:\t");
   scanf("%d", &tq);
 
-  printf("\n\nProcesso\t|Tempo de Retorno|Tempo de Espera\n\n");
+  printf("\nProcesso\t|Tempo de Retorno|Tempo de Espera\n\n");
 
   for(t = 0, cnt = 0; remain != 0;)
   {
@@ -54,7 +54,7 @@ int main()
   }
 
   printf("\nTempo Médio de Espera = %f\n", wt * 1.0 / n);
-  printf("Tempo Médio de Retorno = %f", tat * 1.0 / n);
+  printf("\nTempo Médio de Retorno = %f\n", tat * 1.0 / n);
 
   return 0;
 }

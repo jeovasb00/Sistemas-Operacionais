@@ -64,4 +64,3 @@ int main()
     encontrarTempoMedio(processos, n, burst_time); 
     return 0; 
 } 
-// Este código foi contribuído por Shivi_Aggarwal
